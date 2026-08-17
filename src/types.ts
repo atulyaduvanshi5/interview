@@ -13,7 +13,7 @@ export interface Snippet {
   code: string;
 }
 
-export type SectionId = "javascript" | "react" | "nextjs" | "coding" | "mycode" | "customhooks";
+export type SectionId = "javascript" | "react" | "coding" | "customhooks";
 
 export interface Section {
   id: SectionId;

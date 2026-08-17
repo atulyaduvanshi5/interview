@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Section, SectionId } from "./types";
-import { javascriptQuestions } from "./data/javascript";
-import { reactQuestions } from "./data/react";
-import { nextjsQuestions } from "./data/nextjs";
+import { javascriptQuestions, javascriptSnippets } from "./data/javascript";
+import { reactQuestions, reactSnippets } from "./data/react";
 import { codingQuestions } from "./data/coding";
-import { myCodeSnippets } from "./data/myCode";
 import { customHooks } from "./data/customHooks";
 import SearchBar from "./components/SearchBar";
 import TabBar from "./components/TabBar";
@@ -16,20 +14,19 @@ import CustomHooksPanel from "./components/CustomHooksPanel";
 const SECTIONS: Section[] = [
   { id: "javascript", label: "JavaScript" },
   { id: "react", label: "React" },
-  { id: "nextjs", label: "Next.js" },
   { id: "coding", label: "Coding" },
-  { id: "mycode", label: "My Code" },
   { id: "customhooks", label: "Custom Hooks" },
 ];
 
-const QUESTION_DATA: Record<
-  Exclude<SectionId, "mycode" | "customhooks">,
-  typeof javascriptQuestions
-> = {
+const QUESTION_DATA: Record<Exclude<SectionId, "customhooks">, typeof javascriptQuestions> = {
   javascript: javascriptQuestions,
   react: reactQuestions,
-  nextjs: nextjsQuestions,
   coding: codingQuestions,
+};
+
+const SNIPPET_DATA: Partial<Record<Exclude<SectionId, "customhooks">, typeof javascriptSnippets>> = {
+  javascript: javascriptSnippets,
+  react: reactSnippets,
 };
 
 function normalize(str: string) {
@@ -45,11 +42,15 @@ function App() {
 
   const jumpItems = useMemo(() => {
     if (searching || activeSection === "customhooks") return [];
-    const items =
-      activeSection === "mycode"
-        ? myCodeSnippets.map((s) => ({ id: s.id, label: s.title }))
-        : QUESTION_DATA[activeSection].map((q) => ({ id: q.id, label: q.question }));
-    return [...items].sort((a, b) => a.label.localeCompare(b.label));
+    const questionItems = QUESTION_DATA[activeSection].map((q) => ({
+      id: q.id,
+      label: q.question,
+    }));
+    const snippetItems = (SNIPPET_DATA[activeSection] ?? []).map((s) => ({
+      id: s.id,
+      label: s.title,
+    }));
+    return [...questionItems, ...snippetItems].sort((a, b) => a.label.localeCompare(b.label));
   }, [activeSection, searching]);
 
   const handleJump = (id: string) => {
@@ -69,17 +70,10 @@ function App() {
 
   const filteredQuestions = useMemo(() => {
     if (!searching) {
-      return activeSection === "mycode" || activeSection === "customhooks"
-        ? []
-        : QUESTION_DATA[activeSection];
+      return activeSection === "customhooks" ? [] : QUESTION_DATA[activeSection];
     }
     const query = normalize(search.trim());
-    const all = [
-      ...javascriptQuestions,
-      ...reactQuestions,
-      ...nextjsQuestions,
-      ...codingQuestions,
-    ];
+    const all = [...javascriptQuestions, ...reactQuestions, ...codingQuestions];
     return all.filter((q) => {
       const haystack = [q.question, q.shortAnswer, ...(q.keyPoints ?? []), q.code ?? ""]
         .join(" ")
@@ -90,10 +84,14 @@ function App() {
 
   const filteredSnippets = useMemo(() => {
     if (!searching) {
-      return activeSection === "mycode" ? myCodeSnippets : [];
+      return activeSection === "customhooks" ? [] : (SNIPPET_DATA[activeSection] ?? []);
     }
     const query = normalize(search.trim());
-    const allSnippets = [...myCodeSnippets, ...customHooks.map((h) => h.snippet)];
+    const allSnippets = [
+      ...javascriptSnippets,
+      ...reactSnippets,
+      ...customHooks.map((h) => h.snippet),
+    ];
     return allSnippets.filter((s) => {
       const haystack = [s.title, s.description ?? "", s.code].join(" ").toLowerCase();
       return haystack.includes(query);
