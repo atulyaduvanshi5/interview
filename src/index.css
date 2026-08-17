@@ -107,6 +107,11 @@ body {
   display: none;
 }
 
+.sub-tab-bar {
+  padding-bottom: 0;
+  margin-bottom: 8px;
+}
+
 .tab {
   flex: 0 0 auto;
   padding: 7px 12px;

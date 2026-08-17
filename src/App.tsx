@@ -5,11 +5,13 @@ import { reactQuestions } from "./data/react";
 import { nextjsQuestions } from "./data/nextjs";
 import { codingQuestions } from "./data/coding";
 import { myCodeSnippets } from "./data/myCode";
+import { customHooks } from "./data/customHooks";
 import SearchBar from "./components/SearchBar";
 import TabBar from "./components/TabBar";
 import JumpChips from "./components/JumpChips";
 import QuestionCard from "./components/QuestionCard";
 import SnippetCard from "./components/SnippetCard";
+import CustomHooksPanel from "./components/CustomHooksPanel";
 
 const SECTIONS: Section[] = [
   { id: "javascript", label: "JavaScript" },
@@ -17,9 +19,13 @@ const SECTIONS: Section[] = [
   { id: "nextjs", label: "Next.js" },
   { id: "coding", label: "Coding" },
   { id: "mycode", label: "My Code" },
+  { id: "customhooks", label: "Custom Hooks" },
 ];
 
-const QUESTION_DATA: Record<Exclude<SectionId, "mycode">, typeof javascriptQuestions> = {
+const QUESTION_DATA: Record<
+  Exclude<SectionId, "mycode" | "customhooks">,
+  typeof javascriptQuestions
+> = {
   javascript: javascriptQuestions,
   react: reactQuestions,
   nextjs: nextjsQuestions,
@@ -38,7 +44,7 @@ function App() {
   const searching = search.trim().length > 0;
 
   const jumpItems = useMemo(() => {
-    if (searching) return [];
+    if (searching || activeSection === "customhooks") return [];
     const items =
       activeSection === "mycode"
         ? myCodeSnippets.map((s) => ({ id: s.id, label: s.title }))
@@ -63,7 +69,9 @@ function App() {
 
   const filteredQuestions = useMemo(() => {
     if (!searching) {
-      return activeSection === "mycode" ? [] : QUESTION_DATA[activeSection];
+      return activeSection === "mycode" || activeSection === "customhooks"
+        ? []
+        : QUESTION_DATA[activeSection];
     }
     const query = normalize(search.trim());
     const all = [
@@ -85,7 +93,8 @@ function App() {
       return activeSection === "mycode" ? myCodeSnippets : [];
     }
     const query = normalize(search.trim());
-    return myCodeSnippets.filter((s) => {
+    const allSnippets = [...myCodeSnippets, ...customHooks.map((h) => h.snippet)];
+    return allSnippets.filter((s) => {
       const haystack = [s.title, s.description ?? "", s.code].join(" ").toLowerCase();
       return haystack.includes(query);
     });
@@ -111,6 +120,10 @@ function App() {
           </p>
         )}
 
+        {!searching && activeSection === "customhooks" && (
+          <CustomHooksPanel hooks={customHooks} />
+        )}
+
         {filteredQuestions.map((q) => (
           <QuestionCard
             key={q.id}
@@ -128,9 +141,10 @@ function App() {
           <p className="empty-state">No matches. Try a different keyword.</p>
         )}
 
-        {!searching && filteredQuestions.length === 0 && filteredSnippets.length === 0 && (
-          <p className="empty-state">No content added yet.</p>
-        )}
+        {!searching &&
+          activeSection !== "customhooks" &&
+          filteredQuestions.length === 0 &&
+          filteredSnippets.length === 0 && <p className="empty-state">No content added yet.</p>}
       </main>
     </div>
   );
