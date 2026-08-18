@@ -51,6 +51,68 @@ const PokemonDropdown = () => {
 export default PokemonDropdown;`,
   },
   {
+    id: "react-pokemon-dropdown-ts",
+    title: "Pokemon Dropdown (TS)",
+    description: "Same dropdown, typed with TypeScript interfaces and React.FC.",
+    code: `import React, { useEffect, useState } from "react";
+
+interface PokemonListItem {
+  name: string;
+  url: string;
+}
+
+interface PokemonDetails {
+  name: string;
+  height: number;
+  weight: number;
+  sprites: {
+    front_default: string;
+  };
+}
+
+const PokemonDropdown: React.FC = () => {
+  const [list, setList] = useState<PokemonListItem[]>([]);
+  const [selected, setSelected] = useState<string>("");
+  const [details, setDetails] = useState<PokemonDetails | null>(null);
+
+  useEffect(() => {
+    fetch("https://pokeapi.co/api/v2/pokemon?limit=100")
+      .then((res) => res.json())
+      .then((data) => setList(data.results));
+  }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    fetch(\`https://pokeapi.co/api/v2/pokemon/\${selected}\`)
+      .then((res) => res.json())
+      .then((data) => setDetails(data));
+  }, [selected]);
+
+  return (
+    <div>
+      <select value={selected} onChange={(e) => setSelected(e.target.value)}>
+        <option value="">Select a Pokemon</option>
+        {list.map((p) => (
+          <option key={p.name} value={p.name}>
+            {p.name}
+          </option>
+        ))}
+      </select>
+      {details && (
+        <div>
+          <h3>{details.name}</h3>
+          <img src={details.sprites.front_default} alt={details.name} />
+          <p>Height: {details.height}</p>
+          <p>Weight: {details.weight}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PokemonDropdown;`,
+  },
+  {
     id: "react-basic-tabs",
     title: "Basic Tabs",
     description: "Simple tab switcher driven by an array of tab definitions.",
