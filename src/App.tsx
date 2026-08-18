@@ -4,27 +4,40 @@ import { javascriptQuestions, javascriptSnippets } from "./data/javascript";
 import { reactQuestions, reactSnippets } from "./data/react";
 import { codingQuestions } from "./data/coding";
 import { customHooks } from "./data/customHooks";
+import { polyfills } from "./data/polyfills";
 import SearchBar from "./components/SearchBar";
 import TabBar from "./components/TabBar";
 import JumpChips from "./components/JumpChips";
 import QuestionCard from "./components/QuestionCard";
 import SnippetCard from "./components/SnippetCard";
-import CustomHooksPanel from "./components/CustomHooksPanel";
+import SubTabsPanel from "./components/SubTabsPanel";
 
 const SECTIONS: Section[] = [
   { id: "javascript", label: "JavaScript" },
   { id: "react", label: "React" },
   { id: "coding", label: "Coding" },
   { id: "customhooks", label: "Custom Hooks" },
+  { id: "polyfills", label: "Polyfills" },
 ];
 
-const QUESTION_DATA: Record<Exclude<SectionId, "customhooks">, typeof javascriptQuestions> = {
+type SimpleSectionId = Exclude<SectionId, "customhooks" | "polyfills">;
+
+const SUB_TAB_DATA: Record<"customhooks" | "polyfills", typeof customHooks> = {
+  customhooks: customHooks,
+  polyfills: polyfills,
+};
+
+function isSubTabbed(id: SectionId): id is "customhooks" | "polyfills" {
+  return id === "customhooks" || id === "polyfills";
+}
+
+const QUESTION_DATA: Record<SimpleSectionId, typeof javascriptQuestions> = {
   javascript: javascriptQuestions,
   react: reactQuestions,
   coding: codingQuestions,
 };
 
-const SNIPPET_DATA: Partial<Record<Exclude<SectionId, "customhooks">, typeof javascriptSnippets>> = {
+const SNIPPET_DATA: Partial<Record<SimpleSectionId, typeof javascriptSnippets>> = {
   javascript: javascriptSnippets,
   react: reactSnippets,
 };
@@ -41,7 +54,7 @@ function App() {
   const searching = search.trim().length > 0;
 
   const jumpItems = useMemo(() => {
-    if (searching || activeSection === "customhooks") return [];
+    if (searching || isSubTabbed(activeSection)) return [];
     const questionItems = QUESTION_DATA[activeSection].map((q) => ({
       id: q.id,
       label: q.question,
@@ -70,7 +83,7 @@ function App() {
 
   const filteredQuestions = useMemo(() => {
     if (!searching) {
-      return activeSection === "customhooks" ? [] : QUESTION_DATA[activeSection];
+      return isSubTabbed(activeSection) ? [] : QUESTION_DATA[activeSection];
     }
     const query = normalize(search.trim());
     const all = [...javascriptQuestions, ...reactQuestions, ...codingQuestions];
@@ -84,13 +97,14 @@ function App() {
 
   const filteredSnippets = useMemo(() => {
     if (!searching) {
-      return activeSection === "customhooks" ? [] : (SNIPPET_DATA[activeSection] ?? []);
+      return isSubTabbed(activeSection) ? [] : (SNIPPET_DATA[activeSection] ?? []);
     }
     const query = normalize(search.trim());
     const allSnippets = [
       ...javascriptSnippets,
       ...reactSnippets,
       ...customHooks.map((h) => h.snippet),
+      ...polyfills.map((p) => p.snippet),
     ];
     return allSnippets.filter((s) => {
       const haystack = [s.title, s.description ?? "", s.code].join(" ").toLowerCase();
@@ -118,8 +132,15 @@ function App() {
           </p>
         )}
 
-        {!searching && activeSection === "customhooks" && (
-          <CustomHooksPanel hooks={customHooks} />
+        {!searching && isSubTabbed(activeSection) && (
+          <SubTabsPanel
+            groups={SUB_TAB_DATA[activeSection]}
+            emptyLabel={
+              activeSection === "polyfills"
+                ? "No polyfills added yet."
+                : "No custom hooks added yet."
+            }
+          />
         )}
 
         {filteredQuestions.map((q) => (
@@ -140,7 +161,7 @@ function App() {
         )}
 
         {!searching &&
-          activeSection !== "customhooks" &&
+          !isSubTabbed(activeSection) &&
           filteredQuestions.length === 0 &&
           filteredSnippets.length === 0 && <p className="empty-state">No content added yet.</p>}
       </main>

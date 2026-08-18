@@ -1,6 +1,6 @@
-import type { HookGroup } from "../types";
+import type { SubTabGroup } from "../types";
 
-export const customHooks: HookGroup[] = [
+export const customHooks: SubTabGroup[] = [
   {
     id: "hook-use-fetch",
     label: "useFetch",
