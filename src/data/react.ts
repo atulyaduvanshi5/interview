@@ -146,4 +146,74 @@ function Tabs() {
 
 export default Tabs;`,
   },
+  {
+    id: "react-todo-local-storage",
+    title: "Todo with LocalStorage",
+    description: "Add, edit, toggle, and delete todos, persisted to localStorage.",
+    code: `import { useState } from 'react';
+
+export default function App1() {
+  const [text, setText] = useState('');
+  const [todos, setTodos] = useState(
+    () => JSON.parse(localStorage.getItem('todos')) || []
+  );
+
+  const add = () => {
+    save([...todos, { id: Date.now(), text, done: false }]);
+    setText('');
+  };
+  const edit = (todo) => {
+    const newText = prompt('Edit todo');
+    save(
+      todos.map((t) => {
+        return t.id === todo ? { ...t, text: newText } : t;
+      })
+    );
+  };
+
+  const deleteTodo = (todo) => {
+    save(
+      todos.filter((t) => {
+        return t.id != todo;
+      })
+    );
+  };
+
+  const toggle = (todo) => {
+    save(
+      todos.map((t) => {
+        return t.id === todo ? { ...t, done: !t.done } : t;
+      })
+    );
+  };
+
+  const save = (list) => {
+    setTodos(list);
+    localStorage.setItem('todos', JSON.stringify(list));
+  };
+
+  return (
+    <div>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={() => add()}>Add</button>
+      {todos?.map((todo) => (
+        <li key={todo.id}>
+          <span
+            onClick={() => toggle(todo.id)}
+            style={{
+              textDecoration: todo.done ? 'line-through' : 'none',
+              padding: '5px',
+            }}
+          >
+            {' '}
+            {todo.text}{' '}
+          </span>
+          <button onClick={() => edit(todo.id)}>edit</button>{' '}
+          <button onClick={() => deleteTodo(todo.id)}>delete</button>
+        </li>
+      ))}
+    </div>
+  );
+}`,
+  },
 ];
