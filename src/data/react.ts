@@ -216,4 +216,53 @@ export default function App1() {
   );
 }`,
   },
+  {
+    id: "react-redux-counter",
+    title: "Redux Counter",
+    description: "Increment/decrement counter using Redux Toolkit and react-redux.",
+    code: `import { configureStore, createSlice } from '@reduxjs/toolkit';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+
+// slice
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: { value: 0 },
+  reducers: {
+    increment: (state) => {
+      state.value += 1;
+    },
+    decrement: (state) => {
+      state.value -= 1;
+    },
+  },
+});
+const { increment, decrement } = counterSlice.actions;
+
+// store
+const store = configureStore({
+  reducer: { counter: counterSlice.reducer },
+});
+
+// UI
+function Counter() {
+  const count = useSelector((state) => state.counter.value);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <h1>{count}</h1>
+      <button onClick={() => dispatch(increment())}>+</button>
+      <button onClick={() => dispatch(decrement())}>-</button>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Provider store={store}>
+      <Counter />
+    </Provider>
+  );
+}`,
+  },
 ];
