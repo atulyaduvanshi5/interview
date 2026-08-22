@@ -119,4 +119,35 @@ let deepCopy = JSON.parse(JSON.stringify(obj2));
 deepCopy.b.c = 4;
 console.log(obj2.b.c); // 2 — original unchanged`,
   },
+  {
+    id: "my-flatten-array-builtin",
+    title: "Flatten Array (flat)",
+    description: "Uses the built-in Array.prototype.flat with Infinity depth.",
+    code: `const nestedArray1 = [1, [2, [3, [4, [5]]]]];
+const flatArray1 = nestedArray1.flat(Infinity);
+console.log(flatArray1); // [1, 2, 3, 4, 5]`,
+  },
+  {
+    id: "my-flatten-array-recursive",
+    title: "Flatten Array (recursive)",
+    description: "Custom recursive flattener without using Array.prototype.flat.",
+    code: `function flattenArray(arr) {
+  let result = [];
+
+  for (const item of arr) {
+    if (Array.isArray(item)) {
+      result = result.concat(flattenArray(item)); // recurse into nested array
+    } else {
+      result.push(item); // plain value, just add it
+    }
+  }
+
+  return result;
+}
+
+const nestedArray = [1, [2, [3, [4, [5]]]]];
+const flatArray = flattenArray(nestedArray);
+
+console.log(flatArray); // Output: [1, 2, 3, 4, 5]`,
+  },
 ];
