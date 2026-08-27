@@ -304,4 +304,38 @@ function App() {
 
 export default App;`,
   },
+  {
+    id: "react-infinite-scroll",
+    title: "Infinite Scroll",
+    description: "Load the next page of results when the container is scrolled near the bottom.",
+    code: `import { useState, useEffect } from 'react';
+
+function App() {
+  const [items, setItems] = useState([]);
+  const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    fetch('https://dummyjson.com/products?limit=10&skip=' + page * 10)
+      .then((res) => res.json())
+      .then((res) => setItems((prev) => [...prev, ...res.products]));
+  }, [page]);
+
+  const handleScroll = (e) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  return (
+    <div onScroll={handleScroll} style={{ height: 400, overflow: 'auto' }}>
+      {items.map((item) => (
+        <p key={item.id}>{item.title}</p>
+      ))}
+    </div>
+  );
+}
+
+export default App;`,
+  },
 ];
