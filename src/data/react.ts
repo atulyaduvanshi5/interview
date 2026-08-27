@@ -265,4 +265,43 @@ export default function App() {
   );
 }`,
   },
+  {
+    id: "react-autocomplete-debounce",
+    title: "Autocomplete / Debounce",
+    description: "Debounced search input that fetches suggestions 500ms after typing stops.",
+    code: `import { useState, useEffect } from "react";
+
+function App() {
+  const [text, setText] = useState("");
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (!text) {
+      setData([]);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      fetch("https://dummyjson.com/products/search?q=" + text)
+        .then((res) => res.json())
+        .then((res) => setData(res.products));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [text]);
+
+  return (
+    <div>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <ul>
+        {data.map((item) => (
+          <li key={item.id}>{item.title}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;`,
+  },
 ];
