@@ -401,4 +401,55 @@ function App() {
 
 export default App;`,
   },
+  {
+    id: "react-todo-api",
+    title: "Todo with API",
+    description: "Seed a todo list from an API, then add, edit, and delete items in local state.",
+    code: `import { useState, useEffect } from 'react';
+
+const API = 'https://jsonplaceholder.typicode.com/todos?_limit=5';
+
+export default function Todo() {
+  const [todos, setTodos] = useState([]);
+  const [text, setText] = useState('');
+
+  useEffect(() => {
+    fetch(API)
+      .then((res) => res.json())
+      .then((data) => setTodos(data));
+  }, []);
+
+  const add = () => {
+    if (!text) return;
+    setTodos([...todos, { id: Date.now(), title: text }]);
+    setText('');
+  };
+
+  const edit = (id, oldTitle) => {
+    const title = prompt('Edit', oldTitle);
+    if (title) setTodos(todos.map((t) => (t.id === id ? { ...t, title } : t)));
+  };
+
+  const remove = (id) => {
+    setTodos(todos.filter((t) => t.id !== id));
+  };
+
+  return (
+    <div>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={add}>Add</button>
+
+      <ul>
+        {todos.map((t) => (
+          <li key={t.id}>
+            {t.title}
+            <button onClick={() => edit(t.id, t.title)}>edit</button>
+            <button onClick={() => remove(t.id)}>x</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}`,
+  },
 ];
