@@ -374,4 +374,31 @@ function Profile() {
 
 export default App;`,
   },
+  {
+    id: "react-reload-counter",
+    title: "Reload Counter",
+    description: "Counter that increments every second via setInterval, cleaned up on unmount.",
+    code: `import { useState, useEffect } from 'react';
+
+function App() {
+  const [count, setCount] = useState(1); // start from 1
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount((prev) => prev + 1);
+    }, 1000); // update every 1 second
+
+    return () => clearInterval(interval); // cleanup when component unmounts
+  }, []);
+
+  return (
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h1>⏱ Auto Counter</h1>
+      <h2>{count}</h2>
+    </div>
+  );
+}
+
+export default App;`,
+  },
 ];
