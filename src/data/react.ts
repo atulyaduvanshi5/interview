@@ -338,4 +338,40 @@ function App() {
 
 export default App;`,
   },
+  {
+    id: "react-context-api",
+    title: "Context API",
+    description: "Share values through the tree with createContext and useContext, skipping prop drilling.",
+    code: `import { createContext, useContext } from 'react';
+
+const UserContext = createContext();
+
+function App() {
+  const user = { name: 'Jaskaran', role: 'Developer' };
+  return (
+    <UserContext.Provider value={user}>
+      <Parent />
+    </UserContext.Provider>
+  );
+}
+
+function Parent() {
+  return <Child />;
+}
+
+function Child() {
+  return <Profile />;
+}
+
+function Profile() {
+  const user = useContext(UserContext);
+  return (
+    <h1>
+      {user.name} - {user.role}
+    </h1>
+  );
+}
+
+export default App;`,
+  },
 ];
