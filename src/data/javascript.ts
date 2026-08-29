@@ -150,4 +150,25 @@ const flatArray = flattenArray(nestedArray);
 
 console.log(flatArray); // Output: [1, 2, 3, 4, 5]`,
   },
+  {
+    id: "my-closure",
+    title: "Closure",
+    description: "The inner function keeps access to its own copy of count, so each call to counter() gets independent state.",
+    code: `function counter() {
+  let count = 0;
+
+  return function () {
+    count++;
+    return count;
+  };
+}
+
+const c1 = counter();
+console.log(c1()); // 1
+console.log(c1()); // 2
+console.log(c1()); // 3
+
+const c2 = counter();
+console.log(c2()); // 1 - fresh closure, separate count`,
+  },
 ];
