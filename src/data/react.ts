@@ -452,4 +452,39 @@ export default function Todo() {
   );
 }`,
   },
+  {
+    id: "react-fetch-api-data-short",
+    title: "Fetch API Data Short",
+    description: "Fetch users on mount and filter them client-side with a search input.",
+    code: `import { useState, useEffect } from "react";
+
+export default function App() {
+  const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) => res.json())
+      .then((data) => setUsers(data));
+  }, []);
+
+  const filtered = users.filter((u) =>
+    u.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div>
+      <input value={search} onChange={(e) => setSearch(e.target.value)} />
+
+      <ul>
+        {filtered.map((u) => (
+          <li key={u.id}>
+            {u.name} - {u.email}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}`,
+  },
 ];
