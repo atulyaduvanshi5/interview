@@ -487,4 +487,68 @@ export default function App() {
   );
 }`,
   },
+  {
+    id: "react-fetch-api-data-long",
+    title: "Fetch API Data Long",
+    description: "Same fetch with loading, error, and empty states, rendered as a table.",
+    code: `import { useState, useEffect } from 'react';
+
+export default function App() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
+      .then(setUsers)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = users.filter((u) =>
+    u.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
+  return (
+    <div>
+      <input
+        placeholder="Search by name"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {filtered.length === 0 ? (
+        <p>No users found</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>City</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((u) => (
+              <tr key={u.id}>
+                <td>{u.name}</td>
+                <td>{u.email}</td>
+                <td>{u.address.city}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}`,
+  },
 ];
