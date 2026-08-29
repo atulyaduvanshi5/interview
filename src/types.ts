@@ -13,7 +13,7 @@ export interface Snippet {
   code: string;
 }
 
-export type SectionId = "javascript" | "react" | "coding" | "customhooks" | "polyfills";
+export type SectionId = "javascript" | "react" | "coding" | "customhooks" | "polyfills" | "dsa";
 
 export interface Section {
   id: SectionId;
@@ -24,4 +24,10 @@ export interface SubTabGroup {
   id: string;
   label: string;
   snippet: Snippet;
+}
+
+export interface SubTabGroupMulti {
+  id: string;
+  label: string;
+  snippets: Snippet[];
 }

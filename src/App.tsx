@@ -5,22 +5,25 @@ import { reactQuestions, reactSnippets } from "./data/react";
 import { codingQuestions } from "./data/coding";
 import { customHooks } from "./data/customHooks";
 import { polyfills } from "./data/polyfills";
+import { dsa } from "./data/dsa";
 import SearchBar from "./components/SearchBar";
 import TabBar from "./components/TabBar";
 import JumpChips from "./components/JumpChips";
 import QuestionCard from "./components/QuestionCard";
 import SnippetCard from "./components/SnippetCard";
 import SubTabsPanel from "./components/SubTabsPanel";
+import MultiSubTabsPanel from "./components/MultiSubTabsPanel";
 
 const SECTIONS: Section[] = [
   { id: "javascript", label: "JavaScript" },
   { id: "react", label: "React" },
+  { id: "dsa", label: "DSA" },
   { id: "coding", label: "Coding" },
   { id: "customhooks", label: "Custom Hooks" },
   { id: "polyfills", label: "Polyfills" },
 ];
 
-type SimpleSectionId = Exclude<SectionId, "customhooks" | "polyfills">;
+type SimpleSectionId = Exclude<SectionId, "customhooks" | "polyfills" | "dsa">;
 
 const SUB_TAB_DATA: Record<"customhooks" | "polyfills", typeof customHooks> = {
   customhooks: customHooks,
@@ -29,6 +32,14 @@ const SUB_TAB_DATA: Record<"customhooks" | "polyfills", typeof customHooks> = {
 
 function isSubTabbed(id: SectionId): id is "customhooks" | "polyfills" {
   return id === "customhooks" || id === "polyfills";
+}
+
+function isMultiSubTabbed(id: SectionId): id is "dsa" {
+  return id === "dsa";
+}
+
+function hasSubTabs(id: SectionId) {
+  return isSubTabbed(id) || isMultiSubTabbed(id);
 }
 
 const QUESTION_DATA: Record<SimpleSectionId, typeof javascriptQuestions> = {
@@ -54,7 +65,7 @@ function App() {
   const searching = search.trim().length > 0;
 
   const jumpItems = useMemo(() => {
-    if (searching || isSubTabbed(activeSection)) return [];
+    if (searching || hasSubTabs(activeSection)) return [];
     const questionItems = QUESTION_DATA[activeSection].map((q) => ({
       id: q.id,
       label: q.question,
@@ -83,7 +94,7 @@ function App() {
 
   const filteredQuestions = useMemo(() => {
     if (!searching) {
-      return isSubTabbed(activeSection) ? [] : QUESTION_DATA[activeSection];
+      return hasSubTabs(activeSection) ? [] : QUESTION_DATA[activeSection];
     }
     const query = normalize(search.trim());
     const all = [...javascriptQuestions, ...reactQuestions, ...codingQuestions];
@@ -97,7 +108,7 @@ function App() {
 
   const filteredSnippets = useMemo(() => {
     if (!searching) {
-      return isSubTabbed(activeSection) ? [] : (SNIPPET_DATA[activeSection] ?? []);
+      return hasSubTabs(activeSection) ? [] : (SNIPPET_DATA[activeSection] ?? []);
     }
     const query = normalize(search.trim());
     const allSnippets = [
@@ -105,6 +116,7 @@ function App() {
       ...reactSnippets,
       ...customHooks.map((h) => h.snippet),
       ...polyfills.map((p) => p.snippet),
+      ...dsa.flatMap((g) => g.snippets),
     ];
     return allSnippets.filter((s) => {
       const haystack = [s.title, s.description ?? "", s.code].join(" ").toLowerCase();
@@ -143,6 +155,10 @@ function App() {
           />
         )}
 
+        {!searching && isMultiSubTabbed(activeSection) && (
+          <MultiSubTabsPanel groups={dsa} emptyLabel="No DSA questions added yet." />
+        )}
+
         {filteredQuestions.map((q) => (
           <QuestionCard
             key={q.id}
@@ -161,7 +177,7 @@ function App() {
         )}
 
         {!searching &&
-          !isSubTabbed(activeSection) &&
+          !hasSubTabs(activeSection) &&
           filteredQuestions.length === 0 &&
           filteredSnippets.length === 0 && <p className="empty-state">No content added yet.</p>}
       </main>
